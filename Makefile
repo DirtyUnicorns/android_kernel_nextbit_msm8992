@@ -373,12 +373,19 @@ LINUXINCLUDE    := \
 
 KBUILD_CPPFLAGS := -D__KERNEL__
 
-KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
-		   -fno-strict-aliasing -fno-common \
-		   -Werror-implicit-function-declaration \
-		   -Wno-format-security \
-		   -fno-delete-null-pointer-checks \
-		   -std=gnu89
+KBUILD_CFLAGS := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
+                 -fno-strict-aliasing -fno-common \
+                 -Werror-implicit-function-declaration \
+                 -Wno-format-security \
+                 -fno-delete-null-pointer-checks \
+                 -std=gnu89
+
+# Thanks gcc!
+KBUILD_CFLAGS   += -Wno-trigraphs -Wno-unused-label -Wno-array-bounds -Wno-memset-transposed-args \
+                   -Wno-unused-function -Wno-declaration-after-statement \
+                   -Wno-unused-variable -Wno-parentheses -Wno-maybe-uninitialized \
+                   -Wno-misleading-indentation -Wno-bool-compare -Wno-int-conversion \
+                   -Wno-discarded-qualifiers -Wno-tautological-compare -Wno-incompatible-pointer-types
 
 KBUILD_AFLAGS_KERNEL :=
 KBUILD_CFLAGS_KERNEL :=
@@ -672,7 +679,7 @@ NOSTDINC_FLAGS += -nostdinc -isystem $(shell $(CC) -print-file-name=include)
 CHECKFLAGS     += $(NOSTDINC_FLAGS)
 
 # warn about C99 declaration after statement
-KBUILD_CFLAGS += $(call cc-option,-Wdeclaration-after-statement,)
+#KBUILD_CFLAGS += $(call cc-option,-Wdeclaration-after-statement,)
 
 # disable pointer signed / unsigned warnings in gcc 4.0
 KBUILD_CFLAGS += $(call cc-disable-warning, pointer-sign)
