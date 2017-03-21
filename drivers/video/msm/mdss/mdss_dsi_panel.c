@@ -22,6 +22,7 @@
 #include <linux/qpnp/pwm.h>
 #include <linux/err.h>
 #include <linux/string.h>
+#include <linux/display_state.h>
 
 #include "mdss_dsi.h"
 
@@ -52,6 +53,13 @@ extern int synaptics_rmi4_suspend(struct device *dev);
 extern struct synaptics_rmi4_data *syn_rmi4_data;
 extern int synaptics_rmi4_resume(struct device *dev);
 /*} FIH, Hubert, 20151030, fix touch no response when double press power key for [NBQ-1404]*/
+
+static bool display_on = true;
+
+bool is_display_on()
+{
+	return display_on;
+}
 
 void mdss_dsi_panel_pwm_cfg(struct mdss_dsi_ctrl_pdata *ctrl)
 {
@@ -323,9 +331,9 @@ static int mdss_dsi_request_gpios(struct mdss_dsi_ctrl_pdata *ctrl_pdata)
 			goto disp_ldo_gpio_err;
 		}
 	}
-	
+
 /*>>[NBQ-16] EricHsieh,END */
-	
+
 	rc = gpio_request(ctrl_pdata->rst_gpio, "disp_rst_n");
 	if (rc) {
 		pr_err("request reset gpio failed, rc=%d\n",
@@ -389,7 +397,7 @@ int mdss_dsi_panel_reset(struct mdss_panel_data *pdata, int enable)
 			   __func__, __LINE__);
 	}
 
-/*<<[NBQ-16] EricHsieh,Implement the OTM1926C CTC 5.2" panel */	
+/*<<[NBQ-16] EricHsieh,Implement the OTM1926C CTC 5.2" panel */
 	if (!gpio_is_valid(ctrl_pdata->disp_ldo_gpio)) {
 		pr_debug("%s:%d, reset line not configured\n",
 			   __func__, __LINE__);
@@ -807,6 +815,8 @@ static int mdss_dsi_panel_on(struct mdss_panel_data *pdata)
 		return -EINVAL;
 	}
 
+	display_on = true;
+
 	pinfo = &pdata->panel_info;
 	ctrl = container_of(pdata, struct mdss_dsi_ctrl_pdata,
 				panel_data);
@@ -863,6 +873,8 @@ static int mdss_dsi_panel_off(struct mdss_panel_data *pdata)
 		pr_err("%s: Invalid input data\n", __func__);
 		return -EINVAL;
 	}
+
+	display_on = false;
 
 	pinfo = &pdata->panel_info;
 	ctrl = container_of(pdata, struct mdss_dsi_ctrl_pdata,
